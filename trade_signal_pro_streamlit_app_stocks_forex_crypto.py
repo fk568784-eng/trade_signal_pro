@@ -14,6 +14,17 @@ interval = st.sidebar.selectbox("Select Timeframe", ["1d", "1h", "15m"])
 # Load Data
 df = yf.download(ticker, period="1mo", interval=interval)
 
+# Check if the data is empty
+if df.empty:
+    st.error(f"No data found for {ticker} with interval {interval}. Try another symbol or timeframe.")
+    st.stop()  # stop app to prevent crash
+
+# Check if there are enough rows for indicators (RSI needs at least 14)
+if len(df) < 15:
+    st.error(f"Not enough data to calculate indicators for {ticker} with interval {interval}.")
+    st.stop()
+
+
 # Check if data is empty
 if df.empty:
     st.error(f"No data found for {ticker} with interval {interval}. Try another symbol or timeframe.")
