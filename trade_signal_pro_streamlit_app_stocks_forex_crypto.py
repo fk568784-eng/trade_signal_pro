@@ -14,14 +14,17 @@ interval = st.sidebar.selectbox("Select Timeframe", ["1d", "1h", "15m"])
 # Download Data
 df = yf.download(ticker, period="1mo", interval=interval)
 
+# Drop rows with missing Close values
+df = df.dropna(subset=["Close"])
+
 # Check if data is empty
 if df.empty:
     st.error(f"No data found for {ticker} with interval {interval}. Try another symbol or timeframe.")
     st.stop()
 
-# Check if enough data for indicators
+# Check if enough rows for indicators (RSI default period=14)
 if len(df) < 15:
-    st.error(f"Not enough data to calculate indicators for {ticker} with interval {interval}.")
+    st.error(f"Not enough valid data to calculate indicators for {ticker} with interval {interval}.")
     st.stop()
 
 # Calculate Indicators
@@ -49,7 +52,7 @@ elif signal == "Strong Sell":
 else:
     st.info(f"ℹ️ {signal} for {ticker}")
 
-# Plot Chart
+# Plot Candlestick + Bollinger Bands
 fig = go.Figure()
 fig.add_trace(go.Candlestick(
     x=df.index,
@@ -64,5 +67,6 @@ st.plotly_chart(fig, use_container_width=True)
 # Show Indicators Charts
 st.subheader("RSI")
 st.line_chart(df[["RSI"]])
+
 st.subheader("MACD")
 st.line_chart(df[["MACD", "Signal_Line"]])
