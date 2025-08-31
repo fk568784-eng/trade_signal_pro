@@ -1,8 +1,5 @@
 streamlit
-yfinance
 pandas
-numpy
 plotly
-pytz
 ta
-python-binance
+yfinance
