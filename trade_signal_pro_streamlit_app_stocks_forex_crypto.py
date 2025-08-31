@@ -11,30 +11,20 @@ market_type = st.sidebar.selectbox("Choose Market", ["Crypto (Binance)", "Forex"
 ticker = st.sidebar.text_input("Enter Symbol (e.g., BTC-USD, EURUSD=X, AAPL)", "BTC-USD")
 interval = st.sidebar.selectbox("Select Timeframe", ["1d", "1h", "15m"])
 
-# Load Data
+# Download Data
 df = yf.download(ticker, period="1mo", interval=interval)
-
-# Check if the data is empty
-if df.empty:
-    st.error(f"No data found for {ticker} with interval {interval}. Try another symbol or timeframe.")
-    st.stop()  # stop app to prevent crash
-
-# Check if there are enough rows for indicators (RSI needs at least 14)
-if len(df) < 15:
-    st.error(f"Not enough data to calculate indicators for {ticker} with interval {interval}.")
-    st.stop()
-
 
 # Check if data is empty
 if df.empty:
     st.error(f"No data found for {ticker} with interval {interval}. Try another symbol or timeframe.")
-    st.stop()  # Stop the app to prevent errors
-
-if df.empty:
-    st.error("No data found. Try another symbol.")
     st.stop()
 
-# Add Indicators
+# Check if enough data for indicators
+if len(df) < 15:
+    st.error(f"Not enough data to calculate indicators for {ticker} with interval {interval}.")
+    st.stop()
+
+# Calculate Indicators
 df["RSI"] = ta.momentum.RSIIndicator(df["Close"]).rsi()
 macd = ta.trend.MACD(df["Close"])
 df["MACD"] = macd.macd()
@@ -71,6 +61,8 @@ fig.add_trace(go.Scatter(x=df.index, y=df['BB_High'], line=dict(color='blue', da
 fig.add_trace(go.Scatter(x=df.index, y=df['BB_Low'], line=dict(color='blue', dash='dot'), name='BB Low'))
 st.plotly_chart(fig, use_container_width=True)
 
-st.subheader("Indicators")
+# Show Indicators Charts
+st.subheader("RSI")
 st.line_chart(df[["RSI"]])
+st.subheader("MACD")
 st.line_chart(df[["MACD", "Signal_Line"]])
