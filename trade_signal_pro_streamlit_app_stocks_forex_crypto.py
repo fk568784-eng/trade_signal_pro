@@ -13,6 +13,12 @@ interval = st.sidebar.selectbox("Select Timeframe", ["1d", "1h", "15m"])
 
 # Load Data
 df = yf.download(ticker, period="1mo", interval=interval)
+
+# Check if data is empty
+if df.empty:
+    st.error(f"No data found for {ticker} with interval {interval}. Try another symbol or timeframe.")
+    st.stop()  # Stop the app to prevent errors
+
 if df.empty:
     st.error("No data found. Try another symbol.")
     st.stop()
